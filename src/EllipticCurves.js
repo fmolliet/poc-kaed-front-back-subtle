@@ -1,5 +1,5 @@
 const { subtle } = require('crypto').webcrypto;
-const {buf2hex, hexToBytes } = require('./hexUtils');
+const {encodeHex, decodeHex} = require('./utils');
 
 const KEY_PARAMETERS_SPEC    = {name: "ECDH",namedCurve: "P-256"};
 const CIPHER_PARAMETERS_SPEC = {name:"AES-GCM", length: 256};
@@ -24,10 +24,6 @@ class EllipticCurves {
             return subtle.exportKey("spki", keypair.publicKey)
         }
         
-        function convertToString( publicKeyArraybuffer ){
-            return buf2hex(publicKeyArraybuffer)
-        }
-    
         function storePrivateKey(keypair){
             this.privateKey = keypair.privateKey;
             return keypair;
@@ -37,7 +33,7 @@ class EllipticCurves {
             generateKey()
                 .then(storePrivateKey.bind(this))
                 .then(exportPublicKey)
-                .then(convertToString)
+                .then(encodeHex)
                 .then(resolve);
         }.bind(this));
     }
@@ -50,7 +46,7 @@ class EllipticCurves {
     keyagreement(clientPublicKey){
     
         function importPublicKey(clientPublicKey){
-            return subtle.importKey("spki", hexToBytes(clientPublicKey),KEY_PARAMETERS_SPEC,true, []);
+            return subtle.importKey("spki", decodeHex(clientPublicKey),KEY_PARAMETERS_SPEC,true, []);
         }
         
         function getECDHParameters(publicKey){
@@ -69,7 +65,7 @@ class EllipticCurves {
             importPublicKey(clientPublicKey)
                 .then(deriveSecretKey.bind(this))
                 .then(exportSecretKey)
-                .then(buf2hex)
+                .then(encodeHex)
                 .then(resolve);
         }.bind(this));
     }
