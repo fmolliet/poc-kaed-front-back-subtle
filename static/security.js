@@ -82,12 +82,28 @@ const ecdh2 = new EllipticCurves();
 ecdh.generateKeys().then((clientPublicKey)=>{
     console.log(clientPublicKey)
     console.log(ecdh)
-    ecdh2.generateKeys().then((serverPublicKey)=>{
-        ecdh.keyagreement(serverPublicKey).then((secret)=>{
-            console.log("client Computed Secret:" + secret)
-        });
-        ecdh2.keyagreement(clientPublicKey).then((secret)=>{
-            console.log("server Computed Secret:" + secret)
-        });
-    })
+    const options = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'User-Agent': 'Insomnia/2023.5.5'},
+        body: `{"clientPublicKey":"${clientPublicKey}"}`
+      };
+      
+      fetch('http://localhost:3000/keys', options)
+        .then(response => response.json())
+        .then(response => {
+            console.log(response)
+            ecdh.keyagreement(response.serverPublicKey).then((secret)=>{
+                     console.log("client Computed Secret: " + secret)
+            });
+        })
+        .catch(err => console.error(err));
+    
+    // ecdh2.generateKeys().then((serverPublicKey)=>{
+    //     ecdh.keyagreement(serverPublicKey).then((secret)=>{
+    //         console.log("client Computed Secret:" + secret)
+    //     });
+    //     ecdh2.keyagreement(clientPublicKey).then((secret)=>{
+    //         console.log("server Computed Secret:" + secret)
+    //     });
+    // })
 });

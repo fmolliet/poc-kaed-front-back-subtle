@@ -16,13 +16,13 @@ class Controller {
         try {
             const { clientPublicKey } = req.body;
             
-            const { cryptogram, serverPublicKey } = await cipherService.keyAgreedment(clientPublicKey);
+            const { secret, serverPublicKey } = await cipherService.keyAgreedment(clientPublicKey);
             
             //const contextId = randomBytes(32).toString('base64');
             
             //await cacheService.set(contextId, cryptogram);
             
-            console.log( cryptogram );
+            console.log( `Server Computed Secret: ${secret}` );
             
             return res.json({ serverPublicKey }).status(200);
         } catch(err){

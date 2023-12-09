@@ -1,34 +1,21 @@
 const { subtle } = require('crypto').webcrypto;
 
-
+const EllipticCurves = require("./EllipticCurves");
 
 
 class CipherService {
     
-    buf2hex(buffer) { // buffer is an ArrayBuffer
-        return [...new Uint8Array(buffer)]
-            .map(x => x.toString(16).padStart(2, '0'))
-            .join('');
-    }
     
-    hex2Bytes(hex) {
-        let bytes = [];
-        for (let c = 0; c < hex.length; c += 2)
-            bytes.push(parseInt(hex.substr(c, 2), 16));
-        return bytes;
-    }
     
     async keyAgreedment( clientPublicKey ){
+        const ecdh = new EllipticCurves();
        
-        console.log(subtle)
-        const keypair = await subtle.generateKey({
-            name: "ECDH",
-            namedCurve: "P-256",
-          },false, ['deriveKey']);  
-       
+        const serverPublicKey = await ecdh.generateKeys();
+        const secret =await ecdh.keyagreement( clientPublicKey )
+        
         return {
-            secret: "",
-            serverPublicKey:  this.buf2hex(await subtle.exportKey("spki", keypair.publicKey))
+            secret,
+            serverPublicKey
         }
     }
 }
